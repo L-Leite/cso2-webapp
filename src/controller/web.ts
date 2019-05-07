@@ -226,10 +226,11 @@ export class WebController {
       const newUserId: number = await SignupModel.createUser(userName, playerName, password)
 
       if (newUserId) {
-        req.session.regenerate((err) => {
+        req.session.userId = newUserId
+        req.session.save((err) => {
           if (err) { throw err }
         })
-        req.session.userId = newUserId
+
         return res.redirect('/user')
       }
 
@@ -266,10 +267,10 @@ export class WebController {
       const authedUserId: number = await LoginModel.validateCreds(username, password)
 
       if (authedUserId) {
-        req.session.regenerate((err) => {
+        req.session.userId = authedUserId
+        req.session.save((err) => {
           if (err) { throw err }
         })
-        req.session.userId = authedUserId
 
         return res.redirect('/user')
       }
@@ -304,9 +305,9 @@ export class WebController {
       return res.redirect('/login')
     }
 
-    const confirmation: boolean = req.body.confirmation
+    const confirmation: string = req.body.confirmation
 
-    if (confirmation === false) {
+    if (confirmation !== 'on') {
       return WebController.redirectWithError('The user did not tick the confirmation box', '/user/delete', req, res)
     }
 
