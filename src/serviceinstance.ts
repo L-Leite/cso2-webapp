@@ -10,7 +10,6 @@ import favicon from 'serve-favicon'
 import { LogInstance } from 'log/loginstance'
 import { MorganToWinstonStream } from 'log/morgan2winston'
 
-import { InventorySvcPing, UserSvcPing } from 'authorities'
 import { WebController } from 'controller/web'
 import { MapImageList } from 'maps'
 
@@ -30,60 +29,10 @@ const sessionSettings: session.SessionOptions = {
  */
 export class ServiceInstance {
 
-  /**
-   * check if the required environment variables are set on start
-   * throws an error if one is missing
-   */
-  private static checkEnvVars(): void {
-    if (process.env.WEBAPP_PORT == null) {
-      throw new Error('WEBAPP_PORT environment variable is not set.')
-    }
-
-    if (process.env.USERSERVICE_HOST == null) {
-      throw new Error('USERSERVICE_HOST environment variable is not set.')
-    }
-
-    if (process.env.USERSERVICE_PORT == null) {
-      throw new Error('USERSERVICE_PORT environment variable is not set.')
-    }
-
-    if (process.env.INVSERVICE_HOST == null) {
-      throw new Error('INVSERVICE_HOST environment variable is not set.')
-    }
-
-    if (process.env.INVSERVICE_PORT == null) {
-      throw new Error('INVSERVICE_PORT environment variable is not set.')
-    }
-  }
-
-  /**
-   * check if the required services are up on startup
-   * throws an error if a service is down
-   */
-  private static async checkServices(): Promise<void> {
-    await UserSvcPing.checkNow()
-
-    if (UserSvcPing.isAlive() === false) {
-      throw new Error('User service is offline')
-    }
-
-    LogInstance.info('User service at ' + UserSvcPing.getHost() + ' is online')
-
-    await InventorySvcPing.checkNow()
-
-    if (InventorySvcPing.isAlive() === false) {
-      throw new Error('Inventory service is offline')
-    }
-
-    LogInstance.info('Inventory service at ' + InventorySvcPing.getHost() + ' is online')
-  }
-
   public app: express.Express
   private server: http.Server
 
   constructor() {
-    ServiceInstance.checkEnvVars()
-
     this.app = express()
 
     this.applyConfigs()
@@ -96,7 +45,6 @@ export class ServiceInstance {
    * start the service
    */
   public async listen(): Promise<void> {
-    await ServiceInstance.checkServices()
     await MapImageList.build()
 
     LogInstance.info('Found ' + MapImageList.getNumOfFiles() + ' map images')
