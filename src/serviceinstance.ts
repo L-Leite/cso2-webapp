@@ -74,7 +74,7 @@ export class ServiceInstance {
       sessionSettings.cookie.secure = false
     } else {
       morganLogFormat = 'common'
-      sessionSettings.cookie.secure = true
+      // sessionSettings.cookie.secure = true
     }
 
     // use morgan as middleware, and pass the logs to winston
