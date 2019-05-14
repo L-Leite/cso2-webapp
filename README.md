@@ -1,8 +1,10 @@
 # cso2-webapp
 
-A web app to manage users for a Nexon's Counter-Strike: Online 2 master server written in Typescript on top of NodeJS.
+[![Build Status](https://travis-ci.org/Ochii/cso2-webapp.svg?branch=master)](https://travis-ci.org/Ochii/cso2-webapp)
 
-You can find the ```docker-compose``` scripts used to run this in [cso2-master-services](https://github.com/Ochii/cso2-master-services).
+A web app to manage users for a Nexon's Counter-Strike: Online 2 master server written in Typescript on top of Node.js.
+
+You can find download and build scripts in [cso2-master-services](https://github.com/Ochii/cso2-master-services#running-the-services).
 
 ## Building
 
@@ -14,6 +16,8 @@ gulp build # builds the service
 ```
 
 ## Starting the app
+
+**Note: You must have an user service and an inventory service running somewhere.**
 
 You can start the web app with:
 
@@ -30,11 +34,13 @@ node dist/app.js
 
 You **must** set those environment variables, or the web app will not start.
 
-## Pull requests
+If you want to know how to run this with the other services, see [cso2-master-services](https://github.com/Ochii/cso2-master-services).
 
-Pull requests are very much welcome.
+## Contributing
 
-Please read the [contributing guide](https://github.com/Ochii/cso2-webapp/blob/master/.github/PULL_REQUEST_TEMPLATE.md) before contributing.
+Bug reports and pull requests are very much welcome.
+
+See the [current project's progress](https://github.com/Ochii/cso2-master-services/projects/1) for more information.
 
 ## License
 
