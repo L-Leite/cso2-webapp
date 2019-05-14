@@ -6,6 +6,9 @@
   "author": "Luís Leite",
   "license": "MIT",
   "main": "src/app.ts",
+  "scripts": {
+    "write-version": "cross-var \"echo $npm_package_version > version.txt\""
+  },
   "dependencies": {
     "@types/lru-cache": "^5.1.0",
     "app-module-path": "^2.2.0",
