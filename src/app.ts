@@ -44,11 +44,13 @@ async function checkServices(): Promise<boolean> {
   return UserSvcPing.isAlive() && InventorySvcPing.isAlive()
 }
 
+let instance: ServiceInstance = null
+
 /**
  * start a service instance
  */
 async function startService() {
-  const instance: ServiceInstance = new ServiceInstance()
+  instance = new ServiceInstance()
   instance.listen()
 }
 
@@ -71,3 +73,9 @@ const loop: NodeJS.Timeout = setInterval(() => {
   LogInstance.warn('User service is ' + UserSvcPing.isAlive() ? 'online' : 'offline')
   LogInstance.warn('Inventory service is ' + InventorySvcPing.isAlive() ? 'online' : 'offline')
 }, 1000 * 5)
+
+process.on('SIGINT', () => {
+  instance.stop()
+}).on('SIGTERM', () => {
+  instance.stop()
+})
