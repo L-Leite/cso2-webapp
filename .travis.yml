@@ -5,11 +5,11 @@ node_js:
 - '11'
 cache: npm
 script:
-- gulp build
+  - gulp build
 jobs:
   include:
-  - stage: GitHub Release
-    node_js: '11'
+    - stage: GitHub Release
+      node_js: '11'
       before_deploy:
         # Set up git user name and tag this commit
         - git config --local user.name "Luís Leite"
