@@ -1,6 +1,6 @@
 {
   "name": "cso2-webapp",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "repository": "github:Ochii/cso2-webapp",
   "description": "Web user app for a Nexon's Counter-Strike: Online 2 master server",
   "author": "Luís Leite",
