@@ -15,6 +15,6 @@ export class LoginModel {
             return null
         }
 
-        return comparePasswordHashes(password, user.password) ? user.userId : null
+        return await comparePasswordHashes(password, user.password) === true ? user.userId : null
     }
 }
