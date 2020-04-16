@@ -1,4 +1,4 @@
-FROM node:11
+FROM node:13
 
 # create dir
 WORKDIR /srv/webapp
@@ -16,12 +16,11 @@ COPY public ./public
 COPY gulpfile.js ./
 COPY ts*.json ./
 
-# install npm dependencies
-RUN npm ci
-RUN npm i -g gulp
+# install dependencies
+RUN yarn install --frozen-lockfile
 
 # build app from source
-RUN gulp build
+RUN npx gulp build
 
 # start the service
 CMD [ "node", "dist/app.js" ]
