@@ -4,7 +4,6 @@ var cached = require('gulp-cached')
 var del = require('delete')
 var gulp = require('gulp')
 var less = require('gulp-less')
-var mocha = require('gulp-mocha')
 var path = require('path')
 var sourcemaps = require('gulp-sourcemaps')
 var ts = require('gulp-typescript')
@@ -85,19 +84,6 @@ gulp.task('typedoc', gulp.series(
   'clean:docs',
   'readme'
 ))
-
-gulp.task('test', () => {
-  util.log('Testing code...')
-  process.env.NODE_ENV = 'development'
-  process.env.USERS_PORT = 30100  
-  process.env.DB_HOST = '127.0.0.1'
-  process.env.DB_PORT = 27017
-  process.env.DB_NAME = 'cso2'
-  return gulp.src('test/**/*.ts')
-    .pipe(mocha({
-      require: 'ts-node/register'
-    }))
-})
 
 gulp.task('default', gulp.series(
   'clean:dist',
