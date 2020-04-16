@@ -1,6 +1,6 @@
 import superagent from 'superagent'
 
-import { inventorySvcAuthority, userSvcAuthority, UserSvcPing } from 'authorities'
+import { userSvcAuthority, UserSvcPing } from 'authorities'
 
 import { User } from 'entities/user'
 
@@ -70,7 +70,7 @@ export class SignupModel {
      */
     private static async createInventory(userId: number): Promise<boolean> {
         const res: superagent.Response = await superagent
-            .post('http://' + inventorySvcAuthority() + '/inventory/' + userId)
+            .post('http://' + userSvcAuthority() + '/inventory/' + userId)
             .accept('json')
         return res.status === 201
     }
@@ -82,7 +82,7 @@ export class SignupModel {
      */
     private static async createCosmetics(userId: number): Promise<boolean> {
         const res: superagent.Response = await superagent
-            .post('http://' + inventorySvcAuthority() + '/inventory/' + userId + '/cosmetics')
+            .post('http://' + userSvcAuthority() + '/inventory/' + userId + '/cosmetics')
             .accept('json')
         return res.status === 201
     }
@@ -94,7 +94,7 @@ export class SignupModel {
      */
     private static async createLoadouts(userId: number): Promise<boolean> {
         const res: superagent.Response = await superagent
-            .post('http://' + inventorySvcAuthority() + '/inventory/' + userId + '/loadout')
+            .post('http://' + userSvcAuthority() + '/inventory/' + userId + '/loadout')
             .accept('json')
         return res.status === 201
     }
@@ -106,7 +106,7 @@ export class SignupModel {
      */
     private static async createBuymenu(userId: number): Promise<boolean> {
         const res: superagent.Response = await superagent
-            .post('http://' + inventorySvcAuthority() + '/inventory/' + userId + '/buymenu')
+            .post('http://' + userSvcAuthority() + '/inventory/' + userId + '/buymenu')
             .accept('json')
         return res.status === 201
     }

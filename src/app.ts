@@ -5,7 +5,7 @@
 // add the src directory to the module search path
 import 'app-module-path/register'
 
-import { InventorySvcPing, UserSvcPing } from 'authorities'
+import { UserSvcPing } from 'authorities'
 import { LogInstance } from 'log/loginstance'
 import { ServiceInstance } from 'serviceinstance'
 
@@ -25,23 +25,14 @@ function validateEnvVars(): void {
   if (process.env.USERSERVICE_PORT == null) {
     throw new Error('USERSERVICE_PORT environment variable is not set.')
   }
-
-  if (process.env.INVSERVICE_HOST == null) {
-    throw new Error('INVSERVICE_HOST environment variable is not set.')
-  }
-
-  if (process.env.INVSERVICE_PORT == null) {
-    throw new Error('INVSERVICE_PORT environment variable is not set.')
-  }
 }
 
 async function checkServices(): Promise<boolean> {
   await Promise.all([
     UserSvcPing.checkNow(),
-    InventorySvcPing.checkNow(),
   ])
 
-  return UserSvcPing.isAlive() && InventorySvcPing.isAlive()
+  return UserSvcPing.isAlive()
 }
 
 let instance: ServiceInstance = null
@@ -63,7 +54,6 @@ const loop: NodeJS.Timeout = setInterval(() => {
   if (checkServices()) {
     LogInstance.warn('Connected to user and inventory services')
     LogInstance.warn('User service is at ' + UserSvcPing.getHost())
-    LogInstance.warn('Inventory service is at ' + InventorySvcPing.getHost())
     startService()
     clearInterval(loop)
     return
@@ -71,7 +61,6 @@ const loop: NodeJS.Timeout = setInterval(() => {
 
   LogInstance.warn('Could not connect to the services, waiting 5 seconds until another connection attempt')
   LogInstance.warn('User service is ' + UserSvcPing.isAlive() ? 'online' : 'offline')
-  LogInstance.warn('Inventory service is ' + InventorySvcPing.isAlive() ? 'online' : 'offline')
 }, 1000 * 5)
 
 process.on('SIGINT', () => {
