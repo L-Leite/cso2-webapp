@@ -1,20 +1,13 @@
-FROM node:13
+FROM mhart/alpine-node:13
 
-# create dir
 WORKDIR /srv/webapp
-
-# get dependencies
-COPY package*.json ./
+COPY package.json yarn.lock gulpfile.js tsconfig.json tslint.json ./
 
 # get source code
 COPY src ./src
 
 # copy static files
 COPY public ./public
-
-# get build files
-COPY gulpfile.js ./
-COPY ts*.json ./
 
 # install dependencies
 RUN yarn install --frozen-lockfile
