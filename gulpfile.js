@@ -10,19 +10,20 @@ const ts = require('gulp-typescript')
 const typedoc = require('gulp-typedoc')
 
 gulp.task('readme', () => {
-  log('Generating documentation...')
-  return gulp.src(['src/**/*.ts'])
-    .pipe(typedoc({
-      excludeExternals: true,
-      ignoreCompilerErrors: false,
-      includeDeclarations: true,
-      name: 'cso2-inventory-service',
-      out: './docs',
-      plugins: ['mdFlavour github'],
-      theme: 'markdown',
-      tsconfig: 'tsconfig.json',
-      version: true
-    }))
+    log('Generating documentation...')
+    return gulp.src(['src/**/*.ts']).pipe(
+        typedoc({
+            excludeExternals: true,
+            ignoreCompilerErrors: false,
+            includeDeclarations: true,
+            name: 'cso2-inventory-service',
+            out: './docs',
+            plugins: ['mdFlavour github'],
+            theme: 'markdown',
+            tsconfig: 'tsconfig.json',
+            version: true
+        })
+    )
 })
 
 gulp.task('eslint', () => {
@@ -35,36 +36,35 @@ gulp.task('eslint', () => {
 })
 
 gulp.task('typescript', () => {
-  log('Transpiling source code...')
-  const project = ts.createProject('tsconfig.json')
-  return project
-      .src()
-      .pipe(project())
-      .pipe(sourcemaps.init())
-      .pipe(sourcemaps.write())
-      .pipe(gulp.dest('dist'))
+    log('Transpiling source code...')
+    const project = ts.createProject('tsconfig.json')
+    return project
+        .src()
+        .pipe(sourcemaps.init())
+        .pipe(project())
+        .pipe(
+            sourcemaps.write('.', {
+                includeContent: false,
+                sourceRoot: '../src'
+            })
+        )
+        .pipe(gulp.dest('dist'))
 })
 
 gulp.task('less', () => {
-  log('Transpiling style sheets...')
-  return gulp.src('src/less/*.less')
-    .pipe(less({
-      paths: [path.join('src/less/includes')]
-    }))
-    .pipe(gulp.dest('public/styles'))
+    log('Transpiling style sheets...')
+    return gulp
+        .src('src/less/*.less')
+        .pipe(
+            less({
+                paths: [path.join('src/less/includes')]
+            })
+        )
+        .pipe(gulp.dest('public/styles'))
 })
 
-gulp.task('build', gulp.series(
-  'less',
-  'eslint',
-  'typescript'
-))
+gulp.task('build', gulp.series('less', 'eslint', 'typescript'))
 
-gulp.task('typedoc', gulp.series(
-  'readme'
-))
+gulp.task('typedoc', gulp.series('readme'))
 
-gulp.task('default', gulp.series(
-  'less',
-  'typescript',
-))
+gulp.task('default', gulp.series('less', 'typescript'))

@@ -1,5 +1,5 @@
 import { User } from 'entities/user'
-import { comparePasswordHashes } from 'hash'
+import { HashContainer } from 'hash'
 
 export class LoginModel {
     /**
@@ -8,13 +8,25 @@ export class LoginModel {
      * @param password the user's password
      * @returns the user's ID if the credentials are valid, null if they're not
      */
-    public static async validateCreds(username: string, password: string): Promise<number> {
+    public static async validateCreds(
+        username: string,
+        password: string
+    ): Promise<number> {
         const user: User = await User.getByName(username)
 
         if (user == null) {
             return null
         }
 
-        return await comparePasswordHashes(password, user.password) === true ? user.userId : null
+        const hashedInPass = await HashContainer.create(password)
+
+        // clear plain password
+        password = null
+
+        const hashedStorePass = HashContainer.from(user.password)
+
+        return hashedInPass.compare(hashedStorePass) === true
+            ? user.userId
+            : null
     }
 }
