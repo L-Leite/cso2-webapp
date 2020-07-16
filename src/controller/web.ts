@@ -6,7 +6,6 @@ import { DeleteUserModel } from 'models/delete'
 import { SignupModel } from 'models/signup'
 
 import { MapImageList } from 'maps'
-import { IndexModel } from 'models'
 
 import { User } from 'entities/user'
 import { UsersService } from 'services/usersservice'
@@ -101,7 +100,7 @@ export class WebController {
         }
 
         const session = req.session as WebSession
-        const numSessions: number = await IndexModel.getSessions()
+        const numSessions: number = await UsersService.getSessions()
 
         res.render('index', {
             playersOnline: numSessions,

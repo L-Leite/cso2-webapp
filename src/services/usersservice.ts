@@ -153,6 +153,24 @@ export class UsersService {
             throw error
         }
     }
+
+    public static async getSessions(): Promise<number> {
+        try {
+            const res: superagent.Response = await superagent
+                .get(`http://${userSvcAuthority()}/ping`)
+                .accept('json')
+
+            if (res.ok === false) {
+                return 0
+            }
+
+            const typedBody = res.body as { sessions: number }
+            return typedBody.sessions
+        } catch (error) {
+            await UserSvcPing.checkNow()
+            throw error
+        }
+    }
 }
 
 const userCache = new LRU<number, User>({ max: 100, maxAge: 1000 * 15 })
