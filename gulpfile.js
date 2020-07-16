@@ -1,28 +1,16 @@
 'use strict'
 
-var cached = require('gulp-cached')
-var del = require('delete')
-var gulp = require('gulp')
-var less = require('gulp-less')
-var path = require('path')
-var sourcemaps = require('gulp-sourcemaps')
-var ts = require('gulp-typescript')
-var tslint = require('gulp-tslint')
-var typedoc = require('gulp-typedoc')
-var util = require('gulp-util')
-
-gulp.task('clean:dist', () => {
-  util.log('Cleaning transpiled source...')
-  return del(['dist/**/*'])
-})
-
-gulp.task('clean:docs', () => {
-  util.log('Cleaning documentation...')
-  return del(['docs/**/*'])
-})
+const eslint = require('gulp-eslint')
+const gulp = require('gulp')
+const less = require('gulp-less')
+const log = require('fancy-log')
+const path = require('path')
+const sourcemaps = require('gulp-sourcemaps')
+const ts = require('gulp-typescript')
+const typedoc = require('gulp-typedoc')
 
 gulp.task('readme', () => {
-  util.log('Generating documentation...')
+  log('Generating documentation...')
   return gulp.src(['src/**/*.ts'])
     .pipe(typedoc({
       excludeExternals: true,
@@ -37,35 +25,28 @@ gulp.task('readme', () => {
     }))
 })
 
-gulp.task('tslint', () => {
-  util.log('Linting source code...')
-  const cfg = ts.createProject('tsconfig.json')
-  return cfg.src()
-    .pipe(cached('tslint'))
-    .pipe(tslint({
-      formatter: 'verbose'
-    }))
-    .pipe(tslint.report({
-      summarizeFailureOutput: true
-    }))
+gulp.task('eslint', () => {
+    log('Linting source code...')
+    return gulp
+        .src(['src/**/*.ts'])
+        .pipe(eslint())
+        .pipe(eslint.format())
+        .pipe(eslint.failAfterError())
 })
 
 gulp.task('typescript', () => {
-  util.log('Transpiling source code...')
+  log('Transpiling source code...')
   const project = ts.createProject('tsconfig.json')
-  return project.src()
-    .pipe(cached('typescript'))
-    .pipe(sourcemaps.init())
-    .pipe(project())
-    .pipe(sourcemaps.write('.', {
-      includeContent: false,
-      sourceRoot: '../src'
-    }))
-    .pipe(gulp.dest('dist'))
+  return project
+      .src()
+      .pipe(project())
+      .pipe(sourcemaps.init())
+      .pipe(sourcemaps.write())
+      .pipe(gulp.dest('dist'))
 })
 
 gulp.task('less', () => {
-  util.log('Transpiling style sheets...')
+  log('Transpiling style sheets...')
   return gulp.src('src/less/*.less')
     .pipe(less({
       paths: [path.join('src/less/includes')]
@@ -74,19 +55,16 @@ gulp.task('less', () => {
 })
 
 gulp.task('build', gulp.series(
-  'clean:dist',
   'less',
-  'tslint',
+  'eslint',
   'typescript'
 ))
 
 gulp.task('typedoc', gulp.series(
-  'clean:docs',
   'readme'
 ))
 
 gulp.task('default', gulp.series(
-  'clean:dist',
   'less',
   'typescript',
 ))
