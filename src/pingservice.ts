@@ -65,17 +65,23 @@ export class PingService {
      * updates the ping check interval according to the alive state
      * @param isAlive the new alive state
      */
-    private async updateDelay(isAlive: boolean): Promise<void> {
+    private updateDelay(isAlive: boolean): void {
         if (this.alive === isAlive) {
             return
         }
 
-        LogInstance.warn('Host ' + this.host + ' is now ' + (isAlive ? 'up' : 'down'))
+        LogInstance.warn(
+            'Host ' + this.host + ' is now ' + (isAlive ? 'up' : 'down')
+        )
 
         clearInterval(this.timerId)
-        this.timerId = setInterval(PingService.onPingCheck,
+        this.timerId = setInterval(
+            () => {
+                void PingService.onPingCheck(this)
+            },
             isAlive ? PING_ALIVE_DELAY : PING_DOWN_DELAY,
-            this)
+            this
+        )
 
         this.alive = isAlive
     }

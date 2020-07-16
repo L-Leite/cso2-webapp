@@ -14,24 +14,29 @@ export class User {
      * @param password the user's account password
      * @returns the user ID if created, false if not
      */
-    public static async create(username: string, playername: string, password: string): Promise<number> {
+    public static async create(
+        username: string,
+        playername: string,
+        password: string
+    ): Promise<number> {
         try {
             const res: superagent.Response = await superagent
-                .post('http://' + userSvcAuthority() + '/users/')
+                .post(`http://${userSvcAuthority()}/users/`)
                 .send({
                     username,
                     playername,
-                    password,
+                    password
                 })
                 .accept('json')
 
             if (res.status === 201) {
-                return res.body.userId
+                const typedBody = res.body as { userId: number }
+                return typedBody.userId
             }
 
             return null
         } catch (error) {
-            UserSvcPing.checkNow()
+            await UserSvcPing.checkNow()
             throw error
         }
     }
@@ -54,7 +59,7 @@ export class User {
             }
 
             const res: superagent.Response = await superagent
-                .get('http://' + userSvcAuthority() + '/users/' + userId)
+                .get(`http://${userSvcAuthority()}/users/${userId}`)
                 .accept('json')
             if (res.status === 200) {
                 // HACK to get methods working
@@ -66,7 +71,7 @@ export class User {
 
             return null
         } catch (error) {
-            UserSvcPing.checkNow()
+            await UserSvcPing.checkNow()
             throw error
         }
     }
@@ -82,7 +87,7 @@ export class User {
             }
 
             const res: superagent.Response = await superagent
-                .get('http://' + userSvcAuthority() + '/users/byname/' + userName)
+                .get(`http://${userSvcAuthority()}/users/byname/${userName}`)
                 .accept('json')
 
             if (res.status === 200) {
@@ -94,7 +99,7 @@ export class User {
 
             return null
         } catch (error) {
-            UserSvcPing.checkNow()
+            await UserSvcPing.checkNow()
             throw error
         }
     }
@@ -107,11 +112,11 @@ export class User {
     public static async delete(userId: number): Promise<boolean> {
         try {
             const res: superagent.Response = await superagent
-                .delete('http://' + userSvcAuthority() + '/users/' + userId)
+                .delete(`http://${userSvcAuthority()}/users/${userId}`)
                 .accept('json')
             return res.status === 200
         } catch (error) {
-            UserSvcPing.checkNow()
+            await UserSvcPing.checkNow()
             throw error
         }
     }

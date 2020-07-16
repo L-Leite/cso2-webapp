@@ -9,7 +9,7 @@ export class MapImageList {
      * builds the image list
      */
     public static async build(): Promise<void> {
-        this.files = await pify(fs.readdir)('public/images')
+        this.files = (await pify(fs.readdir)('public/images')) as string[]
     }
 
     /**

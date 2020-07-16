@@ -12,7 +12,11 @@ export class SignupModel {
      * @param password the new user's password
      * @returns the new user's ID if created, null if not
      */
-    public static async createUser(username: string, playername: string, password: string): Promise<number> {
+    public static async createUser(
+        username: string,
+        playername: string,
+        password: string
+    ): Promise<number> {
         if (UserSvcPing.isAlive() === false) {
             return null
         }
@@ -27,7 +31,7 @@ export class SignupModel {
             this.createInventory(userId),
             this.createCosmetics(userId),
             this.createLoadouts(userId),
-            this.createBuymenu(userId),
+            this.createBuymenu(userId)
         ])
 
         for (const r of results) {
@@ -46,18 +50,23 @@ export class SignupModel {
      * @param password the new user's password
      * @returns the new user's ID if created, null if not
      */
-    private static async createUserInternal(username: string, playername: string, password: string): Promise<number> {
+    private static async createUserInternal(
+        username: string,
+        playername: string,
+        password: string
+    ): Promise<number> {
         const res: superagent.Response = await superagent
-            .post('http://' + userSvcAuthority() + '/users/')
+            .post(`http://${userSvcAuthority()}/users/`)
             .send({
                 username,
                 playername,
-                password,
+                password
             })
             .accept('json')
 
         if (res.status === 201) {
-            return res.body.userId
+            const typedBody = res.body as { userId: number }
+            return typedBody.userId
         }
 
         return null
@@ -70,7 +79,7 @@ export class SignupModel {
      */
     private static async createInventory(userId: number): Promise<boolean> {
         const res: superagent.Response = await superagent
-            .post('http://' + userSvcAuthority() + '/inventory/' + userId)
+            .post(`http://${userSvcAuthority()}/inventory/${userId}`)
             .accept('json')
         return res.status === 201
     }
@@ -82,7 +91,7 @@ export class SignupModel {
      */
     private static async createCosmetics(userId: number): Promise<boolean> {
         const res: superagent.Response = await superagent
-            .post('http://' + userSvcAuthority() + '/inventory/' + userId + '/cosmetics')
+            .post(`http://${userSvcAuthority()}/inventory/${userId}/cosmetics`)
             .accept('json')
         return res.status === 201
     }
@@ -94,7 +103,7 @@ export class SignupModel {
      */
     private static async createLoadouts(userId: number): Promise<boolean> {
         const res: superagent.Response = await superagent
-            .post('http://' + userSvcAuthority() + '/inventory/' + userId + '/loadout')
+            .post(`http://${userSvcAuthority()}/inventory/${userId}/loadout`)
             .accept('json')
         return res.status === 201
     }
@@ -106,7 +115,7 @@ export class SignupModel {
      */
     private static async createBuymenu(userId: number): Promise<boolean> {
         const res: superagent.Response = await superagent
-            .post('http://' + userSvcAuthority() + '/inventory/' + userId + '/buymenu')
+            .post(`http://${userSvcAuthority()}/inventory/${userId}/buymenu`)
             .accept('json')
         return res.status === 201
     }

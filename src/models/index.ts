@@ -10,12 +10,17 @@ export class IndexModel {
     public static async getSessions(): Promise<number> {
         try {
             const res: superagent.Response = await superagent
-                .get('http://' + userSvcAuthority() + '/ping')
+                .get(`http://${userSvcAuthority()}/ping`)
                 .accept('json')
 
-            return res.status === 200 ? res.body.sessions : 0
+            if (res.ok === false) {
+                return 0
+            }
+
+            const typedBody = res.body as { sessions: number }
+            return typedBody.sessions
         } catch (error) {
-            UserSvcPing.checkNow()
+            await UserSvcPing.checkNow()
             throw error
         }
     }
