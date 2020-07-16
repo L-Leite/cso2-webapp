@@ -124,15 +124,15 @@ export class UsersService {
     }
 
     /**
-     * validates an user's credentials
+     * validates an user's credentials and gets the matching user's id
      * @param username the user's name
      * @param password the user's password
-     * @returns true if the credentials are valid, false if not
+     * @returns the matching user id if found, null if not
      */
     public static async validate(
         username: string,
         password: string
-    ): Promise<boolean> {
+    ): Promise<number> {
         try {
             const res: superagent.Response = await superagent
                 .post(`http://${userSvcAuthority()}/users/auth/validate`)
@@ -142,11 +142,17 @@ export class UsersService {
                 })
                 .accept('json')
 
-            return res.status === 200
+            if (res.status !== 200) {
+                return null
+            }
+
+            const typedBody = res.body as { userId: number }
+            return typedBody.userId
         } catch (error) {
             await UserSvcPing.checkNow()
             throw error
         }
+    }
 }
 
 const userCache = new LRU<number, User>({ max: 100, maxAge: 1000 * 15 })

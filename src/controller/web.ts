@@ -3,7 +3,6 @@ import express from 'express'
 import { LogInstance } from 'log/loginstance'
 
 import { DeleteUserModel } from 'models/delete'
-import { LoginModel } from 'models/login'
 import { SignupModel } from 'models/signup'
 
 import { MapImageList } from 'maps'
@@ -362,7 +361,7 @@ export class WebController {
         }
 
         try {
-            const authedUserId: number = await LoginModel.validateCreds(
+            const authedUserId: number = await UsersService.validate(
                 username,
                 password
             )
