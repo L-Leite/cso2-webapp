@@ -10,6 +10,12 @@ import { User } from 'entities/user'
 import { MapImageList } from 'maps'
 import { IndexModel } from 'models'
 
+type WebSession = {
+    error?: string
+    status?: string
+    userId?: number
+}
+
 /**
  * handles requests to /
  */
@@ -18,16 +24,34 @@ export class WebController {
      * setup the controller's routes
      * @param app the server's express instance
      */
-    public static setup(app: express.Express) {
-        app.route('/').get(this.OnGetIndex)
-        app.route('/signup').get(this.OnGetSignup)
-        app.route('/login').get(this.OnGetLogin)
-        app.route('/logout').get(this.OnGetLogout)
-        app.route('/user').get(this.OnGetUser)
-        app.route('/user/delete').get(this.OnGetUserDelete)
-        app.route('/do_signup').post(this.OnPostDoSignup)
-        app.route('/do_login').post(this.OnPostDoLogin)
-        app.route('/do_delete').post(this.OnPostDoDelete)
+    public static setup(app: express.Express): void {
+        app.route('/').get(async (req, res) => {
+            await WebController.OnGetIndex(req, res)
+        })
+        app.route('/signup').get((req, res) => {
+            WebController.OnGetSignup(req, res)
+        })
+        app.route('/login').get((req, res) => {
+            WebController.OnGetLogin(req, res)
+        })
+        app.route('/logout').get((req, res) => {
+            WebController.OnGetLogout(req, res)
+        })
+        app.route('/user').get(async (req, res) => {
+            await WebController.OnGetUser(req, res)
+        })
+        app.route('/user/delete').get(async (req, res) => {
+            await WebController.OnGetUserDelete(req, res)
+        })
+        app.route('/do_signup').post(async (req, res) => {
+            await WebController.OnPostDoSignup(req, res)
+        })
+        app.route('/do_login').post(async (req, res) => {
+            await WebController.OnPostDoLogin(req, res)
+        })
+        app.route('/do_delete').post(async (req, res) => {
+            await WebController.OnPostDoDelete(req, res)
+        })
     }
 
     /**
@@ -75,13 +99,14 @@ export class WebController {
             return res.redirect('/user')
         }
 
-        const sessions: number = await IndexModel.getSessions()
+        const session = req.session as WebSession
+        const numSessions: number = await IndexModel.getSessions()
 
         res.render('index', {
-            playersOnline: sessions,
+            playersOnline: numSessions,
             mapImage: MapImageList.getRandomFile(),
-            status: req.session.status,
-            error: req.session.error
+            status: session.status,
+            error: session.error
         })
 
         WebController.cleanUpStatus(req)
@@ -93,18 +118,17 @@ export class WebController {
      * @param req the request data
      * @param res the response data
      */
-    private static async OnGetSignup(
-        req: express.Request,
-        res: express.Response
-    ): Promise<void> {
+    private static OnGetSignup(req: express.Request, res: express.Response) {
         if (req.session.userId != null) {
             return res.redirect('/user')
         }
 
+        const session = req.session as WebSession
+
         res.render('signup', {
             mapImage: MapImageList.getRandomFile(),
-            status: req.session.status,
-            error: req.session.error
+            status: session.status,
+            error: session.error
         })
 
         WebController.cleanUpStatus(req)
@@ -116,18 +140,17 @@ export class WebController {
      * @param req the request data
      * @param res the response data
      */
-    private static async OnGetLogin(
-        req: express.Request,
-        res: express.Response
-    ): Promise<void> {
+    private static OnGetLogin(req: express.Request, res: express.Response) {
         if (req.session.userId != null) {
             return res.redirect('/user')
         }
 
+        const session = req.session as WebSession
+
         res.render('login', {
             mapImage: MapImageList.getRandomFile(),
-            status: req.session.status,
-            error: req.session.error
+            status: session.status,
+            error: session.error
         })
 
         WebController.cleanUpStatus(req)
@@ -139,10 +162,10 @@ export class WebController {
      * @param req the request data
      * @param res the response data
      */
-    private static async OnGetLogout(
+    private static OnGetLogout(
         req: express.Request,
         res: express.Response
-    ): Promise<void> {
+    ): void {
         if (req.session.userId != null) {
             req.session.userId = null
         }
@@ -172,13 +195,14 @@ export class WebController {
             return res.redirect('/login')
         }
 
+        const session = req.session as WebSession
         const user: User = await User.get(req.session.userId)
 
         res.render('user', {
             user,
             mapImage: MapImageList.getRandomFile(),
-            status: req.session.status,
-            error: req.session.error
+            status: session.status,
+            error: session.error
         })
 
         WebController.cleanUpStatus(req)
@@ -198,13 +222,14 @@ export class WebController {
             return res.redirect('/login')
         }
 
+        const session = req.session as WebSession
         const user: User = await User.get(req.session.userId)
 
         res.render('delete', {
             user,
             mapImage: MapImageList.getRandomFile(),
-            status: req.session.status,
-            error: req.session.error
+            status: session.status,
+            error: session.error
         })
 
         WebController.cleanUpStatus(req)
@@ -224,10 +249,19 @@ export class WebController {
             return res.redirect('/user')
         }
 
-        const userName: string = req.body.username
-        const playerName: string = req.body.playername
-        const password: string = req.body.password
-        const confirmedPassword: string = req.body.confirmed_password
+        type signupBody = {
+            username?: string
+            playername?: string
+            password?: string
+            confirmed_password?: string
+        }
+
+        const typedBody = req.body as signupBody
+
+        const userName: string = typedBody.username
+        const playerName: string = typedBody.playername
+        const password: string = typedBody.password
+        const confirmedPassword: string = typedBody.confirmed_password
 
         if (
             userName == null ||
@@ -278,7 +312,8 @@ export class WebController {
             )
         } catch (error) {
             if (error) {
-                const errorMessage: string = error.toString()
+                const typedError = error as { toString: () => string }
+                const errorMessage: string = typedError.toString()
                 LogInstance.error(errorMessage)
                 WebController.redirectWithError(
                     errorMessage,
@@ -304,8 +339,15 @@ export class WebController {
             return res.redirect('/user')
         }
 
-        const username: string = req.body.username
-        const password: string = req.body.password
+        type loginBody = {
+            username?: string
+            password?: string
+        }
+
+        const typedBody = req.body as loginBody
+
+        const username: string = typedBody.username
+        const password: string = typedBody.password
 
         if (username == null || password == null) {
             return WebController.redirectWithError(
@@ -343,10 +385,15 @@ export class WebController {
             if (error) {
                 let errorMessage: string = null
 
-                if (error.status === 404) {
+                const typedError = error as {
+                    status: number
+                    toString: () => string
+                }
+
+                if (typedError.status === 404) {
                     errorMessage = 'User was not found'
                 } else {
-                    errorMessage = error.toString()
+                    errorMessage = typedError.toString()
                 }
 
                 LogInstance.error(errorMessage)
@@ -370,13 +417,16 @@ export class WebController {
         req: express.Request,
         res: express.Response
     ): Promise<void> {
-        const targetUserId: number = req.session.userId
+        const session = req.session as WebSession
+        const typedBody = req.body as { confirmation: string }
+
+        const targetUserId: number = session.userId
 
         if (targetUserId == null) {
             return res.redirect('/login')
         }
 
-        const confirmation: string = req.body.confirmation
+        const confirmation: string = typedBody.confirmation
 
         if (confirmation !== 'on') {
             return WebController.redirectWithError(
@@ -411,7 +461,8 @@ export class WebController {
             )
         } catch (error) {
             if (error) {
-                const errorMessage: string = error.toString()
+                const typedError = error as { toString: () => string }
+                const errorMessage: string = typedError.toString()
                 LogInstance.error(errorMessage)
                 WebController.redirectWithError(
                     errorMessage,
