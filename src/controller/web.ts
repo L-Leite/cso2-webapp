@@ -2,7 +2,6 @@ import express from 'express'
 
 import { LogInstance } from 'log/loginstance'
 
-import { DeleteUserModel } from 'models/delete'
 import { SignupModel } from 'models/signup'
 
 import { MapImageList } from 'maps'
@@ -439,7 +438,7 @@ export class WebController {
         }
 
         try {
-            const deleted: boolean = await DeleteUserModel.delete(targetUserId)
+            const deleted: boolean = await UsersService.delete(targetUserId)
 
             if (deleted) {
                 req.session.userId = null
