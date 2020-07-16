@@ -1,4 +1,4 @@
-import { User } from 'entities/user'
+import { UsersService } from 'services/usersservice'
 
 export class DeleteUserModel {
     /**
@@ -7,6 +7,6 @@ export class DeleteUserModel {
      * @returns true if deleted successfully, false if not
      */
     public static async delete(userId: number): Promise<boolean> {
-        return User.delete(userId)
+        return await UsersService.delete(userId)
     }
 }

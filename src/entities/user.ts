@@ -1,148 +1,62 @@
-import LRU from 'lru-cache'
-import superagent from 'superagent'
-
-import { userSvcAuthority, UserSvcPing } from 'authorities'
+export const USER_MAX_LEVEL = 99
 
 /**
- * represents an user account
+ * represents an user and its data
  */
 export class User {
-    /**
-     * create an user
-     * @param username the new user's name
-     * @param playername the user's ingame player name
-     * @param password the user's account password
-     * @returns the user ID if created, false if not
-     */
-    public static async create(
-        username: string,
-        playername: string,
-        password: string
-    ): Promise<number> {
-        try {
-            const res: superagent.Response = await superagent
-                .post(`http://${userSvcAuthority()}/users/`)
-                .send({
-                    username,
-                    playername,
-                    password
-                })
-                .accept('json')
+    public id: number
+    public username: string
+    public playername: string
 
-            if (res.status === 201) {
-                const typedBody = res.body as { userId: number }
-                return typedBody.userId
-            }
+    public gm: boolean
 
-            return null
-        } catch (error) {
-            await UserSvcPing.checkNow()
-            throw error
-        }
-    }
+    public points: number
+    public cash: number
+    public mpoints: number
 
-    /**
-     * get an user's by its ID
-     * @param userId the user's ID
-     * @returns the user object if found, null otherwise
-     */
-    public static async get(userId: number): Promise<User> {
-        try {
-            let session: User = userCache.get(userId)
-
-            if (session != null) {
-                return session
-            }
-
-            if (UserSvcPing.isAlive() === false) {
-                return null
-            }
-
-            const res: superagent.Response = await superagent
-                .get(`http://${userSvcAuthority()}/users/${userId}`)
-                .accept('json')
-            if (res.status === 200) {
-                // HACK to get methods working
-                session = new User()
-                Object.assign(session, res.body)
-                userCache.set(session.userId, session)
-                return session
-            }
-
-            return null
-        } catch (error) {
-            await UserSvcPing.checkNow()
-            throw error
-        }
-    }
-
-    /**
-     * get an user's by its name
-     * @param userName the target's user name
-     */
-    public static async getByName(userName: string): Promise<User> {
-        try {
-            if (UserSvcPing.isAlive() === false) {
-                return null
-            }
-
-            const res: superagent.Response = await superagent
-                .get(`http://${userSvcAuthority()}/users/byname/${userName}`)
-                .accept('json')
-
-            if (res.status === 200) {
-                // HACK to get, methods working
-                const newBody: User = new User()
-                Object.assign(newBody, res.body)
-                return newBody
-            }
-
-            return null
-        } catch (error) {
-            await UserSvcPing.checkNow()
-            throw error
-        }
-    }
-
-    /**
-     * delete an user
-     * @param userId the user's to be deleted ID
-     * @returns true if deleted successfully, false if not
-     */
-    public static async delete(userId: number): Promise<boolean> {
-        try {
-            const res: superagent.Response = await superagent
-                .delete(`http://${userSvcAuthority()}/users/${userId}`)
-                .accept('json')
-            return res.status === 200
-        } catch (error) {
-            await UserSvcPing.checkNow()
-            throw error
-        }
-    }
-
-    public userId: number
-    public userName: string
-    public password: string
-    public playerName: string
     public level: number
-    public avatar: number
-    public curExp: number
-    public maxExp: number
+    public cur_xp: BigInt
+    public max_xp: BigInt
+    public vip_level: number
+    public vip_xp: number
+
     public rank: number
-    public vipLevel: number
+
+    public rank_frame: number
+
+    public played_matches: number
     public wins: number
+    public seconds_played: number
+
     public kills: number
     public deaths: number
     public assists: number
+    public headshots: number
+    public accuracy: number
 
-    /**
-     * is the user a VIP?
-     * @returns true if so, false if not
-     */
-    public isVip(): boolean {
-        return this.vipLevel !== 0
-    }
+    public avatar: number
+    public unlocked_avatars: number[]
+
+    public title: number
+    public unlocked_titles: number[]
+    public signature: string
+
+    public unlocked_achievements: number[]
+
+    public netcafe_name: string
+
+    public clan_name: string
+    public clan_mark: number
+
+    public world_rank: number
+
+    public best_gamemode: number
+    public best_map: number
+
+    public skill_human_curxp: BigInt
+    public skill_human_maxxp: BigInt
+    public skill_human_points: BigInt
+    public skill_zombie_curxp: BigInt
+    public skill_zombie_maxxp: BigInt
+    public skill_zombie_points: BigInt
 }
-
-const userCache = new LRU<number, User>({ max: 100, maxAge: 1000 * 15 })

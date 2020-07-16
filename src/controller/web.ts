@@ -6,9 +6,11 @@ import { DeleteUserModel } from 'models/delete'
 import { LoginModel } from 'models/login'
 import { SignupModel } from 'models/signup'
 
-import { User } from 'entities/user'
 import { MapImageList } from 'maps'
 import { IndexModel } from 'models'
+
+import { User } from 'entities/user'
+import { UsersService } from 'services/usersservice'
 
 type WebSession = {
     error?: string
@@ -196,7 +198,7 @@ export class WebController {
         }
 
         const session = req.session as WebSession
-        const user: User = await User.get(req.session.userId)
+        const user: User = await UsersService.get(req.session.userId)
 
         res.render('user', {
             user,
@@ -223,7 +225,7 @@ export class WebController {
         }
 
         const session = req.session as WebSession
-        const user: User = await User.get(req.session.userId)
+        const user: User = await UsersService.get(req.session.userId)
 
         res.render('delete', {
             user,
@@ -287,29 +289,30 @@ export class WebController {
         }
 
         try {
-            const newUserId: number = await SignupModel.createUser(
+            const newUser: User = await SignupModel.createUser(
                 userName,
                 playerName,
                 password
             )
 
-            if (newUserId) {
-                req.session.userId = newUserId
-                req.session.save((err) => {
-                    if (err) {
-                        throw err
-                    }
-                })
-
-                return res.redirect('/user')
+            if (newUser == null) {
+                WebController.redirectWithError(
+                    'Bad credentials',
+                    '/signup',
+                    req,
+                    res
+                )
+                return
             }
 
-            WebController.redirectWithError(
-                'Bad credentials',
-                '/signup',
-                req,
-                res
-            )
+            req.session.userId = newUser.id
+            req.session.save((err) => {
+                if (err) {
+                    throw err
+                }
+            })
+
+            return res.redirect('/user')
         } catch (error) {
             if (error) {
                 const typedError = error as { toString: () => string }

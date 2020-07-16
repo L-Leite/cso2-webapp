@@ -1,5 +1,6 @@
-import { User } from 'entities/user'
 import { HashContainer } from 'hash'
+import { User } from 'entities/user'
+import { UsersService } from 'services/usersservice'
 
 export class LoginModel {
     /**
@@ -12,7 +13,7 @@ export class LoginModel {
         username: string,
         password: string
     ): Promise<number> {
-        const user: User = await User.getByName(username)
+        const user: User = await UsersService.getByName(username)
 
         if (user == null) {
             return null

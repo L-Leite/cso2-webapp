@@ -3,6 +3,7 @@ import superagent from 'superagent'
 import { userSvcAuthority, UserSvcPing } from 'authorities'
 
 import { User } from 'entities/user'
+import { UsersService } from 'services/usersservice'
 
 export class SignupModel {
     /**
@@ -16,22 +17,26 @@ export class SignupModel {
         username: string,
         playername: string,
         password: string
-    ): Promise<number> {
+    ): Promise<User> {
         if (UserSvcPing.isAlive() === false) {
             return null
         }
 
-        const userId: number = await User.create(username, playername, password)
+        const newUser: User = await UsersService.create(
+            username,
+            playername,
+            password
+        )
 
-        if (userId == null) {
+        if (newUser == null) {
             return null
         }
 
         const results: boolean[] = await Promise.all([
-            this.createInventory(userId),
-            this.createCosmetics(userId),
-            this.createLoadouts(userId),
-            this.createBuymenu(userId)
+            this.createInventory(newUser.id),
+            this.createCosmetics(newUser.id),
+            this.createLoadouts(newUser.id),
+            this.createBuymenu(newUser.id)
         ])
 
         for (const r of results) {
@@ -40,7 +45,7 @@ export class SignupModel {
             }
         }
 
-        return userId
+        return newUser
     }
 
     /**
