@@ -171,6 +171,54 @@ export class UsersService {
             throw error
         }
     }
+
+    /**
+     * create a new inventory for an user
+     * @param userId the new owner's user ID
+     * @returns true if successful, false if not
+     */
+    public static async createInventory(userId: number): Promise<boolean> {
+        const res: superagent.Response = await superagent
+            .post(`http://${userSvcAuthority()}/inventory/${userId}`)
+            .accept('json')
+        return res.status === 201
+    }
+
+    /**
+     * create new cosmetic slots for an user
+     * @param userId the new owner's user ID
+     * @returns true if successful, false if not
+     */
+    public static async createCosmetics(userId: number): Promise<boolean> {
+        const res: superagent.Response = await superagent
+            .post(`http://${userSvcAuthority()}/inventory/${userId}/cosmetics`)
+            .accept('json')
+        return res.status === 201
+    }
+
+    /**
+     * create new loadouts for an user
+     * @param userId the new owner's user ID
+     * @returns true if successful, false if not
+     */
+    public static async createLoadouts(userId: number): Promise<boolean> {
+        const res: superagent.Response = await superagent
+            .post(`http://${userSvcAuthority()}/inventory/${userId}/loadout`)
+            .accept('json')
+        return res.status === 201
+    }
+
+    /**
+     * create new buy menu slots for an user
+     * @param userId the new owner's user ID
+     * @returns true if successful, false if not
+     */
+    public static async createBuymenu(userId: number): Promise<boolean> {
+        const res: superagent.Response = await superagent
+            .post(`http://${userSvcAuthority()}/inventory/${userId}/buymenu`)
+            .accept('json')
+        return res.status === 201
+    }
 }
 
 const userCache = new LRU<number, User>({ max: 100, maxAge: 1000 * 15 })

@@ -2,8 +2,6 @@ import express from 'express'
 
 import { LogInstance } from 'log/loginstance'
 
-import { SignupModel } from 'models/signup'
-
 import { MapImageList } from 'maps'
 
 import { User } from 'entities/user'
@@ -286,7 +284,7 @@ export class WebController {
         }
 
         try {
-            const newUser: User = await SignupModel.createUser(
+            const newUser: User = await UsersService.create(
                 userName,
                 playerName,
                 password
@@ -294,12 +292,31 @@ export class WebController {
 
             if (newUser == null) {
                 WebController.redirectWithError(
-                    'Bad credentials',
+                    'Invalid new user credentials',
                     '/signup',
                     req,
                     res
                 )
                 return
+            }
+
+            const results: boolean[] = await Promise.all([
+                UsersService.createInventory(newUser.id),
+                UsersService.createCosmetics(newUser.id),
+                UsersService.createLoadouts(newUser.id),
+                UsersService.createBuymenu(newUser.id)
+            ])
+
+            for (const r of results) {
+                if (r === false) {
+                    WebController.redirectWithError(
+                        'Internal error: could not create inventory for user',
+                        '/signup',
+                        req,
+                        res
+                    )
+                    return
+                }
             }
 
             req.session.userId = newUser.id
