@@ -23,7 +23,7 @@
     "lru-cache": "^5.1.1",
     "morgan": "^1.9.1",
     "pify": "^4.0.1",
-    "pug": "^2.0.4",
+    "pug": "^3.0.1",
     "serve-favicon": "^2.5.0",
     "superagent": "^5.2.2",
     "uuid": "^3.3.3",
